@@ -1,0 +1,17 @@
+*.pyc
+
+GENIE3.py
+
+inferred-networks/
+figures/
+tables/
+
+data/
+
+tmp/
+.idea/
+venv/
+dist/
+build/
+__pycache__/
+*.egg-info/
