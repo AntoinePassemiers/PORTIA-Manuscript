@@ -258,14 +258,14 @@ def main():
         f.write(str(table))
 
     for method_name in method_names:
-        ndcg = 0.
-        for res in evaluations[method_name]['gt'][:2]:
-            ndcg += res['score'] / len(evaluations[method_name]['gt'][:2])
-        print(f'LCL - NDCG of {method_name}: {ndcg}')
-        ndcg = 0.
-        for res in evaluations[method_name]['gt'][2:]:
-            ndcg += res['score'] / len(evaluations[method_name]['gt'][2:])
-        print(f'Yeast - NDCG of {method_name}: {ndcg}')
+        ndcgs = []
+        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [0, 1]]))
+        print(f'LCL - NDCG of {method_name}: {ndcgs}')
+        ndcgs = []
+        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [2, 5, 8]]))
+        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [3, 6, 9]]))
+        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [4, 7, 10]]))
+        print(f'Yeast - NDCG of {method_name}: {ndcgs}')
 
     # Generate figures
     print('Generating figures...')

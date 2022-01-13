@@ -40,17 +40,23 @@ class CausalStructure(enum.IntEnum):
     @staticmethod
     def array_to_relevance(M):
         R = np.zeros(M.shape, dtype=np.uint8)
-        R[M == CausalStructure.TRUE_POSITIVE] = 4
-        R[M == CausalStructure.CHAIN] = 3
-        R[M == CausalStructure.FORK] = 2
-        R[M == CausalStructure.CHAIN_REVERSED] = 1
-        R[M == CausalStructure.COLLIDER] = 1
-        R[M == CausalStructure.UNDIRECTED] = 1
-        R[M == CausalStructure.SPURIOUS_CORRELATION] = 0
 
-        # Special cases
-        R[M == CausalStructure.TRUE_NEGATIVE] = 0  # TODO
-        R[M == CausalStructure.FALSE_NEGATIVE] = 0
+        # True positives
+        R[M == CausalStructure.TRUE_POSITIVE] = 4
+
+        # Forward chains
+        R[M == CausalStructure.CHAIN] = 2
+
+        # D-connected variables (that are not TPs nor forward chains)
+        R[M == CausalStructure.FORK] = 1
+        R[M == CausalStructure.CHAIN_REVERSED] = 1
+
+        # D-separated variables (that are indirectly related)
+        R[M == CausalStructure.COLLIDER] = 0.5
+        R[M == CausalStructure.UNDIRECTED] = 0.5
+
+        # Remaining cases (spurious correlations)
+        R[M == CausalStructure.SPURIOUS_CORRELATION] = 0
         return R
 
     @staticmethod

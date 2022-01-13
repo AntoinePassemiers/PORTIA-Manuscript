@@ -6,7 +6,6 @@ import os
 import sys
 
 import numpy as np
-import igraph
 
 from evalportia.causal_structure import CausalStructure
 from evalportia.utils.nan import nan_to_min
@@ -15,7 +14,11 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(ROOT)
 import pyximport
 pyximport.install(setup_args={'include_dirs': np.get_include()})
-from _topology import _evaluate
+from _topology import _evaluate, _all_connected
+
+
+def are_nodes_connected(A, tf_mask):
+    return _all_connected(A, tf_mask)
 
 
 def graph_theoretic_evaluation(filepath, G_target, G_pred, tf_mask):
@@ -23,53 +26,54 @@ def graph_theoretic_evaluation(filepath, G_target, G_pred, tf_mask):
     n_edges = G_target.n_edges
 
     # Goldstandard adjacency matrix
-    A = G_target.asarray()
+    A = np.copy(G_target.asarray())
 
     # Goldstandard undirected (symmetric) adjacency matrix
     AU = G_target.as_symmetric().asarray()
 
     # Convert predicted scores to binary adjacency matrix
     A_binary_pred = G_pred.binarize(n_edges).asarray()
+    assert int(np.sum(A_binary_pred)) == n_edges
+
+    # Fill missing values
+    np.nan_to_num(A, nan=0, copy=False)
+    np.nan_to_num(AU, nan=0, copy=False)
+    A_binary_pred = nan_to_min(A_binary_pred)
 
     if os.path.exists(filepath):
         data = np.load(filepath)
         C = data['C']
         CU = data['CU']
     else:
-        G1 = igraph.Graph.Adjacency(A.astype(bool).tolist())
-        G1U = igraph.Graph.Adjacency(AU.astype(bool).tolist())
-        C = np.copy(A).astype(np.uint8)
-        CU = np.copy(AU).astype(np.uint8)
-        for i in range(n_genes):
-            if tf_mask[i]: # C[i, j] cannot be True if `i` is not a TF
-                for j in range(n_genes):
-                    if j == i:
-                        # A gene cannot regulate itself
-                        continue
-                    if not A[i, j]:
-                        # If `i` does not directly regulate `j`, then check whether
-                        # it indirectly regulates it
-                        C[i, j] = G1.vertex_connectivity(source=i, target=j, checks=False)
-                for j in range(i):
-                    if not AU[i, j]:
-                        # If `i` does not directly regulate `j`, then check whether
-                        # it indirectly regulates it (undirected regulation)
-                        CU[i, j] = G1U.vertex_connectivity(source=i, target=j, checks=False)
+        # Find all pairs of connected vertices
+        C = are_nodes_connected(A, tf_mask)
+
+        # Find all pairs of connected vertices (undirected edges)
+        CU = are_nodes_connected(AU, np.ones(AU.shape[0]))
+
         # If `i` indirectly regulates `j`, then an undirected regulatory relationship
         # exists between `j` and `i`, and vice versa
         # This step is necessary because we didn't compute node connectivity when tf_mask[i]
         # is False, leading to missing values in `CU`
         CU = np.maximum(CU, CU.T)
 
-        # Save regulatory relationship matrices (long running times)
+        # Save regulatory relationship matrices
         np.savez(filepath, C=C, CU=CU)
+    assert np.all(CU >= C)
+
+    # No self-regulation
+    np.fill_diagonal(A, 0)
+    np.fill_diagonal(C, 0)
+    np.fill_diagonal(CU, 0)
+
+    # Categorise predictions based on local causal structures
     results = {'T': _evaluate(A, A_binary_pred, C, CU, tf_mask)}
 
     # Convert the matrix of causal structures into a relevance matrix
     relevance = CausalStructure.array_to_relevance(results['T'])
 
     # Filter predictions and keep only meaningful ones:
-    # no self-regulation, and no prediction for TF for which there is no
+    # no self-regulation, and no prediction for TFs for which there is no
     # experimental evidence, based on the goldstandard
     mask = G_target.get_mask()
     y_relevance = relevance[mask]
@@ -88,13 +92,13 @@ def graph_theoretic_evaluation(filepath, G_target, G_pred, tf_mask):
     idx = np.argsort(y_pred)[-n_edges:][::-1]
 
     # Compute importance weights
-    weights = np.log2(1. + np.arange(1, len(idx) + 1))
+    weights = 1. / np.log2(1. + np.arange(1, len(idx) + 1))
 
     # Discounted Cumulative Gain
-    dcg = np.sum(y_relevance[idx] / weights)
+    dcg = np.sum(weights * y_relevance[idx])
 
     # Ideal Discounted Cumulative Gain
-    idcg = np.sum(4. / weights)
+    idcg = 4. * np.sum(weights)
 
     # Normalized Discounted Cumulative Gain (ranges between 0 and 1)
     ndcg = dcg / idcg

@@ -77,10 +77,6 @@ def parse_output(filepath):
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-noko', action='store_true',
-                        help='Whether to remove KO experiments')
-
     synapse = synapseclient.Synapse()
     username, password = get_synapse_credentials()
     synapse.login(username, password)
@@ -90,73 +86,80 @@ def main():
     method_names = os.listdir(NETWORKS_PATH)
     evaluations = {method_name: {'gt': [], 'scores': [], 'aurocs': [], 'auprcs': [], 'symmetry': [], 'target-symmetry': [], 'scores-noko': [], 'aurocs-noko': [], 'auprcs-noko': []} for method_name in method_names}
 
-    for method_name in method_names:
-        for net_id in ['1', '3', '4']:
-            synapse_id_expression = synapse_ids[net_id]['expression']
-            synapse_id_tfs = synapse_ids[net_id]['tfs']
-            synapse_id_goldstandard = synapse_ids[net_id]['goldstandard']
-            entity = synapse.get(synapse_id_tfs)
-            with open(entity.path, 'r') as f:
-                tfs = set()
-                for line in f.readlines():
-                    line = line.rstrip().lstrip()
-                    if len(line) > 0:
-                        tfs.add(line)
-            entity = synapse.get(synapse_id_expression)
-            df = pd.read_csv(entity.path, delimiter='\t', header='infer')
-            gene_names = df.columns.to_numpy()
-            gene_dict = {name: i for i, name in enumerate(gene_names)}
-            X = df.to_numpy()
-            n_samples = X.shape[0]
-            n_genes = X.shape[1]
-            tf_idx = np.asarray([i for i in range(len(gene_names)) if gene_names[i] in tfs])
+    for noko in [True, False]:
 
-            filename = f'{net_id}.txt'
-            filepath = os.path.join(NETWORKS_PATH, method_name, filename)
-            dest_folder = os.path.join(script_location, '..', 'INPUT', 'predictions', 'myteam')
-            if not os.path.isdir(dest_folder):
-                os.makedirs(dest_folder)
-            dest_filepath = os.path.join(dest_folder, f'DREAM5_NetworkInference_myteam_Network{net_id}.txt')
-            shutil.copyfile(filepath, dest_filepath)
+        for method_name in method_names:
+            for net_id in ['1', '3', '4']:
+                synapse_id_expression = synapse_ids[net_id]['expression']
+                synapse_id_tfs = synapse_ids[net_id]['tfs']
+                synapse_id_goldstandard = synapse_ids[net_id]['goldstandard']
+                entity = synapse.get(synapse_id_tfs)
+                with open(entity.path, 'r') as f:
+                    tfs = set()
+                    for line in f.readlines():
+                        line = line.rstrip().lstrip()
+                        if len(line) > 0:
+                            tfs.add(line)
+                entity = synapse.get(synapse_id_expression)
+                df = pd.read_csv(entity.path, delimiter='\t', header='infer')
+                gene_names = df.columns.to_numpy()
+                gene_dict = {name: i for i, name in enumerate(gene_names)}
+                X = df.to_numpy()
+                n_samples = X.shape[0]
+                n_genes = X.shape[1]
+                tf_idx = np.asarray([i for i in range(len(gene_names)) if gene_names[i] in tfs])
 
-            entity = synapse.get(synapse_id_goldstandard)
-            G_target = GRN.load_goldstandard(entity.path, gene_names)
-            A = G_target.asarray()
-            G_pred = GRN.load_network(filepath, gene_names, tf_idx)
-            M_bar = G_pred.asarray()
-            tf_mask = np.zeros(n_genes, dtype=bool)
-            tf_mask[tf_idx] = 1
-            tmp_filepath = os.path.join(EVAL_TMP_PATH, f'{net_id}.npz')
-            res = graph_theoretic_evaluation(tmp_filepath, G_target, G_pred, tf_mask)
-            res['G-target'] = G_target
-            res['G-pred'] = G_pred
-            res['net-id'] = net_id
-            evaluations[method_name]['gt'].append(res)
-            evaluations[method_name]['symmetry'].append(matrix_symmetry(G_pred))
-            evaluations[method_name]['target-symmetry'].append(matrix_symmetry(G_target))
+                filename = f'noko.{net_id}.txt' if noko else f'{net_id}.txt'
+                filepath = os.path.join(NETWORKS_PATH, method_name, filename)
+                dest_folder = os.path.join(script_location, '..', 'INPUT', 'predictions', 'myteam')
+                if not os.path.isdir(dest_folder):
+                    os.makedirs(dest_folder)
+                dest_filepath = os.path.join(dest_folder, f'DREAM5_NetworkInference_myteam_Network{net_id}.txt')
+                shutil.copyfile(filepath, dest_filepath)
 
-        os.system(f'cd {script_location}; matlab -nosplash -nodisplay -r "run \'go_all\', exit\"')
+                entity = synapse.get(synapse_id_goldstandard)
+                G_target = GRN.load_goldstandard(entity.path, gene_names)
+                A = G_target.asarray()
+                G_pred = GRN.load_network(filepath, gene_names, tf_idx)
+                M_bar = G_pred.asarray()
+                tf_mask = np.zeros(n_genes, dtype=bool)
+                tf_mask[tf_idx] = 1
+                tmp_filepath = os.path.join(EVAL_TMP_PATH, f'{net_id}.npz')
+                res = graph_theoretic_evaluation(tmp_filepath, G_target, G_pred, tf_mask)
+                res['G-target'] = G_target
+                res['G-pred'] = G_pred
+                res['net-id'] = net_id
+                evaluations[method_name]['gt'].append(res)
+                evaluations[method_name]['symmetry'].append(matrix_symmetry(G_pred))
+                evaluations[method_name]['target-symmetry'].append(matrix_symmetry(G_target))
 
-        filepath = os.path.join(script_location, '..', 'OUTPUT', 'myteam.txt')
-        results = parse_output(filepath)
-        evaluations[method_name]['overall-score'] = results['overall-score']
-        evaluations[method_name]['aurocs'] = results['auroc']
-        evaluations[method_name]['auprcs'] = results['auprc']
+            os.system(f'cd {script_location}; matlab -nosplash -nodisplay -r "run \'go_all\', exit\"')
 
-    for method_name in evaluations.keys():
-        print(method_name, evaluations[method_name])
+            filepath = os.path.join(script_location, '..', 'OUTPUT', 'myteam.txt')
+            results = parse_output(filepath)
+            if not noko:
+                evaluations[method_name]['overall-score'] = results['overall-score']
+                evaluations[method_name]['aurocs'] = results['auroc']
+                evaluations[method_name]['auprcs'] = results['auprc']
+            else:
+                evaluations[method_name]['overall-score-noko'] = results['overall-score']
+                evaluations[method_name]['aurocs-noko'] = results['auroc']
+                evaluations[method_name]['auprcs-noko'] = results['auprc']
+
+        for method_name in evaluations.keys():
+            print(method_name, evaluations[method_name])
 
     # Generate performance table
     print('Generating LaTeX tables...')
     def compute_table_row(method_name, key):
         values = [method_name]
         for i in range(3):
-            values.append(evaluations[key]['auprcs'][i])
-            values.append(evaluations[key]['aurocs'][i])
-        values.append(evaluations[key]['overall-score'])
+            values.append(evaluations[key]['auprcs-noko'][i])
+            values.append(evaluations[key]['aurocs-noko'][i])
+        values.append(evaluations[key]['overall-score-noko'])
         return values
-    caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge.'
-    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=False)
+    caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge (no KO experiment).'
+    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=False, bioinformatics=False)
     table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
     for i in [1, 3, 4]:
         table.add_column(MultiColumn(f'Net{i}', ['AUPR', 'AUROC'], dtype=float))
@@ -169,8 +172,33 @@ def main():
     table.add_midrule()
     table.add_row_values(compute_table_row('\\fastmethodname', 'portia'))
     table.add_row_values(compute_table_row('\\methodname', 'eteportia'))
-    filepath = 'dream5-noko.tex' if args.noko else 'dream5.tex'
-    with open(os.path.join(TABLES_PATH, filepath), 'w') as f:
+    with open(os.path.join(TABLES_PATH, 'dream5-noko.tex'), 'w') as f:
+        f.write(str(table))
+
+    def compute_table_row(method_name, key):
+        values = [method_name]
+        for i in range(3):
+            values.append(evaluations[key]['auprcs'][i])
+            values.append(evaluations[key]['aurocs'][i])
+        values.append(evaluations[key]['overall-score-noko'])
+        values.append(evaluations[key]['overall-score'])
+        return values
+    caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge.'
+    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=False, bioinformatics=False)
+    table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
+    for i in [1, 3, 4]:
+        table.add_column(MultiColumn(f'Net{i}', ['AUPR', 'AUROC'], dtype=float))
+    table.add_column(MultiColumn('Overall score (no KO)', dtype=float, alignment='r'))
+    table.add_column(MultiColumn('Overall score', dtype=float, alignment='r'))
+    table.add_row_values(compute_table_row('ARACNe-AP', 'aracneap'))
+    table.add_row_values(compute_table_row('GENIE3', 'genie3'))
+    table.add_row_values(compute_table_row('PLSNET', 'plsnet'))
+    table.add_row_values(compute_table_row('TIGRESS', 'tigress'))
+    table.add_row_values(compute_table_row('ENNET', 'ennet'))
+    table.add_midrule()
+    table.add_row_values(compute_table_row('\\fastmethodname', 'portia'))
+    table.add_row_values(compute_table_row('\\methodname', 'eteportia'))
+    with open(os.path.join(TABLES_PATH, 'dream5.tex'), 'w') as f:
         f.write(str(table))
 
     caption = 'Proportions of false positives made on \\dreamfive, categorised according to the local causal structure in which they occured, for all methods.'
@@ -184,10 +212,10 @@ def main():
 
     print(table)
     for method_name in method_names:
-        ndcg = 0.
+        ndcgs = []
         for res in evaluations[method_name]['gt']:
-            ndcg += res['score'] / len(evaluations[method_name]['gt'])
-        print(f'NDCG of {method_name}: {ndcg}')
+            ndcgs.append(res['score'])
+        print(f'NDCG of {method_name}: {np.mean(ndcgs)}')
 
     # Generate figures
     print('Generating figures...')

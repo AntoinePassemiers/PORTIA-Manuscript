@@ -26,21 +26,34 @@ cdef cnp.uint8_t UNDIRECTED = int(CausalStructure.UNDIRECTED)
 cdef cnp.uint8_t SPURIOUS_CORRELATION = int(CausalStructure.SPURIOUS_CORRELATION)
 cdef cnp.uint8_t TRUE_NEGATIVE = int(CausalStructure.TRUE_NEGATIVE)
 cdef cnp.uint8_t FALSE_NEGATIVE = int(CausalStructure.FALSE_NEGATIVE)
-cdef cnp.float32_t NAN = <cnp.float32_t>np.nan
+
+
+def _all_connected(A, _tf_mask):
+    """Naive algorithm for finding all pairs of connected vertices.
+
+    Note: possible improvement, compute accessibility matrix
+    (e.g. with Floyd-Warshall algorithm)
+    """
+    cdef cnp.uint8_t[:, :] C = np.copy(np.asarray(A, dtype=np.uint8))
+    cdef cnp.uint8_t[:] mask = np.asarray(_tf_mask, dtype=np.uint8)
+    cdef int i, j, k
+    cdef bint found_new_connection = True
+    with nogil:
+        while found_new_connection:
+            found_new_connection = False
+            for i in range(C.shape[0]):
+                if mask[i]:
+                    for j in range(C.shape[1]):
+                        if not C[i, j]:
+                            for k in range(C.shape[1]):
+                                if C[i, k] and C[k, j]:
+                                    C[i, j] = 1
+                                    found_new_connection = True
+                                    break
+    return np.asarray(C)
 
 
 def _evaluate(_A, _A_pred, _C, _CU, tf_mask):
-    """
-    Category 0: true positives
-    Category 1: chains (indirect causal effects)
-    Category 2: forks (no indirect effect, but the variables
-        remain d-separated)
-    Category 3: colliders, reversed chains and undirected relations
-        (causal structures in which variables are not d-separated)
-    Category 4: Reversed chains
-    Category 5: Undirected links
-    Category 6: Spurious correlations (no known causal structure)
-    """
     cdef cnp.uint8_t[:, :] C = np.asarray(_C, dtype=np.uint8)
     cdef cnp.uint8_t[:, :] CU = np.asarray(_CU, dtype=np.uint8)
     cdef cnp.uint8_t[:, :] A = np.asarray(_A, dtype=np.uint8)
@@ -78,6 +91,16 @@ def _evaluate(_A, _A_pred, _C, _CU, tf_mask):
                                 T[i, j] = CHAIN_REVERSED
                                 continue
 
+                            # Check forks
+                            found = False
+                            for k in range(n_genes):
+                                if C[k, i] and C[k, j]:
+                                    found = True
+                                    break
+                            if found:
+                                T[i, j] = FORK
+                                continue
+
                             # Check colliders
                             found = False
                             for k in range(n_genes):
@@ -88,32 +111,22 @@ def _evaluate(_A, _A_pred, _C, _CU, tf_mask):
                                 T[i, j] = COLLIDER
                                 continue
 
-                            # Check forks
-                            found = False
-                            for k in range(n_genes):
-                                if mask[k]:
-                                    if C[k, i] and C[k, j]:
-                                        found = True
-                                        break
-                            if found:
-                                T[i, j] = FORK
-                                continue
-
                             # Check undirected
                             if CU[i, j]:
                                 T[i, j] = UNDIRECTED
                                 continue
 
+                            # No explanation could be found to justify the
+                            # presence of a false positive -> spurious correlation
                             T[i, j] = SPURIOUS_CORRELATION
-                            continue
 
                         else:  # True negative
                             T[i, j] = TRUE_NEGATIVE
 
-                    elif A[i, j]:
-                        if A_pred[i, j]:
+                    else:  # A[i, j] == True
+                        if A_pred[i, j]:  # True positive
                             T[i, j] = TRUE_POSITIVE
-                        else:
+                        else:  # False negative
                             T[i, j] = FALSE_NEGATIVE
 
     return np.asarray(T)

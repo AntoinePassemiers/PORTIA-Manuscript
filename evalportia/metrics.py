@@ -97,17 +97,27 @@ def matrix_symmetry(A):
 
 def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
 
+    # Filter predictions and keep only meaningful ones:
+    # no self-regulation, and no prediction for TF for which there is no
+    # experimental evidence, based on the goldstandard
     mask = G_target.get_mask()
     y_target = G_target[mask]
     y_pred = G_pred[mask]
 
+    # Fill missing predictions with the lowest score.
+    # For fair comparison of the different GRN inference methods,
+    # the same number of predictions should be reported.
+    # If a method reports less regulatory links than what is present
+    # in the goldstandard, missing values will be consumed until
+    # the right number of predictions (`n_edges`) is reached.
     y_pred = nan_to_min(y_pred)
 
+    # Get the indices of the first `n_edges` predictions,
+    # sorted by decreasing order of importance
     idx = np.argsort(y_pred)[-n_top:]
     y_target = y_target[idx]
     y_pred = y_pred[idx]
 
-    # TODO
     assert not np.any(np.isnan(y_target))
     assert len(np.unique(y_target) == 2)
 

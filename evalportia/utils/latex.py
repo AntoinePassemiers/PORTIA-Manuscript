@@ -156,7 +156,7 @@ class LaTeXTable:
         s += '\\botrule\n'
         s += '\\end{tabular}'
         if self.bioinformatics:
-            s += '}}'
+            s += '}'
         if self.text_width:
             s += '\\end{adjustbox}'
         s += '{}\n'
@@ -173,13 +173,13 @@ def create_fp_table(evaluations, method_names, method_keys, net_names, label, ca
         (CausalStructure.TRUE_POSITIVE, None),
         (CausalStructure.CHAIN, 'figures/graph-n-chain.eps'),
         (CausalStructure.FORK, 'figures/graph-n-fork.eps'),
-        (CausalStructure.COLLIDER, 'figures/graph-n-collider.eps'),
         (CausalStructure.CHAIN_REVERSED, 'figures/graph-n-chain-reversed.eps'),
+        (CausalStructure.COLLIDER, 'figures/graph-n-collider.eps'),
         (CausalStructure.UNDIRECTED, 'figures/graph-n-indirect.eps'),
         (CausalStructure.SPURIOUS_CORRELATION, 'figures/graph-n-spurious.eps')
     ]
     
-    table = LaTeXTable(caption, label, text_width=True)
+    table = LaTeXTable(caption, label, text_width=True, bioinformatics=False)
     table.add_column(MultiColumn('Structure', dtype=str, alignment='c'))
     table.add_column(MultiColumn('Illustration', dtype=str, alignment='c'))
     table.add_column(MultiColumn('Network', dtype=str, alignment='c'))
