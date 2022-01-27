@@ -7,19 +7,19 @@ import os
 import zipfile
 
 import matplotlib
-
-from evalportia.grn import GRN
+from portia.gt import graph_theoretic_evaluation, plot_fp_types
+from portia.gt.symmetry import matrix_symmetry
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import scipy.io
 import synapseclient
 
+from portia.gt.grn import GRN
 from evalportia.data import get_synapse_credentials
 from evalportia.metrics import *
-from evalportia.gt import graph_theoretic_evaluation
 from evalportia.utils.latex import *
-from evalportia.plot import plot_fp_types, plot_matrix_symmetry
+from evalportia.plot import plot_matrix_symmetry
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))

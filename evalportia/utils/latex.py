@@ -6,12 +6,14 @@ import enum
 
 import numpy as np
 
-from evalportia.causal_structure import CausalStructure
+from portia.gt import CausalStructure
 
 
 class MultiColumn:
 
-    def __init__(self, name, colnames=[], alignment='c', dtype=float):
+    def __init__(self, name, colnames=None, alignment='c', dtype=str):
+        if colnames is None:
+            colnames = []
         self.name = name
         self.colnames = colnames
         if len(self.colnames) <= 1:
@@ -117,13 +119,14 @@ class LaTeXTable:
             s += '\\begin{table*}[t]\n'
         else:
             s += '\\begin{table}[t]\n'
+        caption = f'\\textcolor{{red}}{{{self.caption}}}'
         if self.bioinformatics:
-            s += f'\\processtable{{{self.caption}\\label{{{self.label}}}}}{{'
+            s += f'\\processtable{{{caption}\\label{{{self.label}}}}}{{'
         else:
-            s += f'\\caption{{{self.caption}\\label{{{self.label}}}}}'
+            s += f'\\caption{{{caption}\\label{{{self.label}}}}}'
         if self.text_width:
             s += '\\begin{adjustbox}{max width=\\textwidth}'
-        s += '\\begin{tabular}'
+        s += '\\color{red}\\begin{tabular}'
         s += '{'
         for multi_column in self.multi_columns:
             s += multi_column.alignment * multi_column.n_columns
@@ -160,7 +163,10 @@ class LaTeXTable:
         if self.text_width:
             s += '\\end{adjustbox}'
         s += '{}\n'
-        s += '\\end{table*}\n'
+        if self.double_column:
+            s += '\\end{table*}\n'
+        else:
+            s += '\\end{table}\n'
         return s
 
     def __repr__(self):

@@ -7,8 +7,9 @@ import pandas as pd
 import scipy.special
 from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
 from sklearn.neighbors import KernelDensity
+import dreamtools
 
-from evalportia.grn import GRN
+from portia.gt.symmetry import matrix_symmetry
 from evalportia.utils.nan import nan_to_min
 
 
@@ -77,24 +78,6 @@ def compute_p_value(value, x, y):
     return np.sum(y[mask] * dx[mask])
 
 
-def matrix_symmetry(A):
-    if isinstance(A, GRN):
-        tf_idx = A.tf_idx
-        A = A.asarray()
-        A = A[tf_idx, :][:, tf_idx]
-
-    A = np.asarray(A)
-    Aa = 0.5 * (A - A.T)
-    As = 0.5 * (A + A.T)
-    mask = ~np.logical_or(np.isnan(Aa), np.isnan(As))
-    norm_aa = np.linalg.norm(Aa[mask])
-    norm_as = np.linalg.norm(As[mask])
-    if norm_as + norm_aa == 0:
-        return 1
-    else:
-        return (norm_as - norm_aa) / (norm_as + norm_aa)
-
-
 def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
 
     # Filter predictions and keep only meaningful ones:
@@ -151,7 +134,6 @@ def score_dream_prediction(gs_filepath, pred_filepath, pdf_data, use_test=False)
     https://github.com/dreamtools/dreamtools/blob/master/dreamtools/dream3/D3C4/scoring.py
     https://github.com/dreamtools/dreamtools/blob/master/dreamtools/dream4/D4C2/scoring.py
     """
-    import dreamtools
     d3d4roc = dreamtools.core.rocs.D3D4ROC()
 
     def _load_network(filename):

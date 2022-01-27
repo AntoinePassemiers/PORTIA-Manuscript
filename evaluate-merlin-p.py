@@ -289,7 +289,7 @@ def main():
             goldstandard = res['goldstandard']
             ax = plt.subplot(1, 1, 1)
             plot_fp_types(ax, res['G-target'], res['G-pred'], res['T'], n_pred=res['G-target'].n_edges)
-            plt.title(f'Score: {res["score"]}')
+            # plt.title(f'Score: {res["score"]}')
             filepath = os.path.join(FIGURES_PATH, f'{method_name}-{net_id}-{goldstandard}.png')
             plt.savefig(filepath)
             plt.close()

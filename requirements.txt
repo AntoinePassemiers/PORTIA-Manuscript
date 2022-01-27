@@ -1,4 +1,4 @@
-portia-grn
+portia-grn>=0.0.11
 numpy
 pandas
 matplotlib

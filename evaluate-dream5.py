@@ -159,7 +159,7 @@ def main():
         values.append(evaluations[key]['overall-score-noko'])
         return values
     caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge (no KO experiment).'
-    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=False, bioinformatics=False)
+    table = LaTeXTable(caption, 'tab:dream5-benchmark', bioinformatics=(not noko))
     table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
     for i in [1, 3, 4]:
         table.add_column(MultiColumn(f'Net{i}', ['AUPR', 'AUROC'], dtype=float))
@@ -184,7 +184,7 @@ def main():
         values.append(evaluations[key]['overall-score'])
         return values
     caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge.'
-    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=False, bioinformatics=False)
+    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=True)
     table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
     for i in [1, 3, 4]:
         table.add_column(MultiColumn(f'Net{i}', ['AUPR', 'AUROC'], dtype=float))
