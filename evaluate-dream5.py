@@ -4,6 +4,7 @@
 
 import argparse
 import os
+import zipfile
 import shutil
 
 import matplotlib.pyplot as plt
@@ -81,6 +82,10 @@ def main():
     synapse = synapseclient.Synapse()
     username, password = get_synapse_credentials()
     synapse.login(username, password)
+
+    entity = synapse.get('syn2787219')
+    with zipfile.ZipFile(entity.path, 'r') as zip_ref:
+        zip_ref.extractall(os.path.join(ROOT, 'data'))
 
     script_location = os.path.join(ROOT, 'data', 'eval', 'matlab')
 
