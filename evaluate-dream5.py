@@ -10,12 +10,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import synapseclient
 
+from portia.gt.evaluation import graph_theoretic_evaluation, plot_fp_types
+from portia.gt.symmetry import matrix_symmetry
+from portia.gt.grn import GRN
 from evalportia.data import get_synapse_credentials
-from evalportia.grn import GRN
-from evalportia.gt import graph_theoretic_evaluation
 from evalportia.metrics import *
 from evalportia.utils.latex import *
-from evalportia.plot import plot_fp_types, plot_matrix_symmetry
+from evalportia.plot import plot_matrix_symmetry
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -183,8 +184,8 @@ def main():
         values.append(evaluations[key]['overall-score-noko'])
         values.append(evaluations[key]['overall-score'])
         return values
-    caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive GRN sub-challenge.'
-    table = LaTeXTable(caption, 'tab:dream5-benchmark', double_column=True)
+    caption = 'ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \\dreamfive \\ GRN inference sub-challenge.'
+    table = LaTeXTable(caption, 'tab:dream5-noko-benchmark', double_column=True)
     table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
     for i in [1, 3, 4]:
         table.add_column(MultiColumn(f'Net{i}', ['AUPR', 'AUROC'], dtype=float))

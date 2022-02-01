@@ -1,0 +1,92 @@
+\begin{table*}[t]
+\caption{\textcolor{red}{Proportions of false positives made on the MERLIN-P datasets, categorised according to the local causal structure in which they occured, for all methods.}\label{tab:fp-categories-merlinp}}\begin{adjustbox}{max width=\textwidth}\color{red}\begin{tabular}{cccrrrrrrr} \\ \toprule
+Structure & Illustration & Network & ARACNe-AP & GENIE3 & PLSNET & TIGRESS & ENNET & PORTIA & etePORTIA \\
+          
+ &  &  &  &  &  &  &  &  &  \\ \midrule
+\multirow{11}{*}{``True positive''} & \multirow{11}{*}{-} & niu (Cusanovich) & 21 & 28 & 27 & \textbf{59} & 12 & 42 & 43 \\
+  &   & Geuvadis (Cusanovich) & 40 & 40 & 11 & 57 & \textbf{60} & 31 & 29 \\
+  &   & NatVar (MacIsaac2) & 54 & 12 & 48 & 69 & 65 & 181 & \textbf{182} \\
+  &   & NatVar (YEASTRACT\_Count3) & 76 & 17 & 32 & 26 & 71 & \textbf{216} & \textbf{216} \\
+  &   & NatVar (YEASTRACT\_Type2) & 80 & 37 & 40 & 18 & 79 & 230 & \textbf{231} \\
+  &   & KO (MacIsaac2) & 29 & 27 & 23 & 41 & 16 & \textbf{48} & 45 \\
+  &   & KO (YEASTRACT\_Count3) & 37 & 20 & 3 & 30 & 12 & 59 & \textbf{60} \\
+  &   & KO (YEASTRACT\_Type2) & 35 & 28 & 7 & \textbf{68} & 19 & 55 & 54 \\
+  &   & Stress (MacIsaac2) & 28 & 30 & 30 & 22 & 35 & 58 & \textbf{59} \\
+  &   & Stress (YEASTRACT\_Count3) & 24 & 22 & 20 & 21 & 28 & \textbf{70} & \textbf{70} \\
+  &   & Stress (YEASTRACT\_Type2) & 47 & 27 & 45 & 23 & 19 & \textbf{73} & 72 \\
+\midrule
+\multirow{11}{*}{``Chain''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-chain.eps}} & niu (Cusanovich) & 20 & 29 & 14 & \textbf{136} & 3 & 76 & 78 \\
+  &   & Geuvadis (Cusanovich) & 105 & 8 & 187 & 101 & \textbf{210} & 78 & 80 \\
+  &   & NatVar (MacIsaac2) & 61 & 10 & 70 & \textbf{146} & 69 & 121 & 114 \\
+  &   & NatVar (YEASTRACT\_Count3) & 38 & 4 & 23 & 40 & 6 & 54 & \textbf{56} \\
+  &   & NatVar (YEASTRACT\_Type2) & 84 & 66 & \textbf{193} & 59 & 29 & 52 & 51 \\
+  &   & KO (MacIsaac2) & \textbf{187} & 86 & 36 & 155 & 101 & 126 & 126 \\
+  &   & KO (YEASTRACT\_Count3) & 41 & \textbf{54} & 2 & 35 & 7 & 37 & 40 \\
+  &   & KO (YEASTRACT\_Type2) & 72 & 17 & 8 & 83 & 26 & 82 & \textbf{86} \\
+  &   & Stress (MacIsaac2) & 116 & \textbf{118} & 48 & 95 & 24 & 112 & 112 \\
+  &   & Stress (YEASTRACT\_Count3) & 11 & \textbf{137} & 41 & 25 & 2 & 36 & 36 \\
+  &   & Stress (YEASTRACT\_Type2) & 58 & \textbf{94} & 6 & 60 & 3 & 77 & 75 \\
+\midrule
+\multirow{11}{*}{``Fork''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-fork.eps}} & niu (Cusanovich) & 5837 & 6053 & \textbf{6113} & 5723 & 5998 & 5790 & 5788 \\
+  &   & Geuvadis (Cusanovich) & 5678 & \textbf{5995} & 5722 & 5625 & 5706 & 5843 & 5843 \\
+  &   & NatVar (MacIsaac2) & 1274 & 1340 & 1392 & 1378 & \textbf{1768} & 1696 & 1707 \\
+  &   & NatVar (YEASTRACT\_Count3) & 984 & 1203 & 1411 & 1217 & 1429 & 1611 & \textbf{1612} \\
+  &   & NatVar (YEASTRACT\_Type2) & 1932 & 2104 & 1222 & 2248 & \textbf{2899} & 2625 & 2631 \\
+  &   & KO (MacIsaac2) & 1323 & 1541 & \textbf{1888} & 1431 & 1670 & 1468 & 1476 \\
+  &   & KO (YEASTRACT\_Count3) & 1266 & 1016 & \textbf{1915} & 1179 & 1698 & 1431 & 1436 \\
+  &   & KO (YEASTRACT\_Type2) & 1821 & 2621 & \textbf{2768} & 1897 & 2081 & 2227 & 2225 \\
+  &   & Stress (MacIsaac2) & 1637 & 1343 & 1816 & 1356 & \textbf{1924} & 1577 & 1576 \\
+  &   & Stress (YEASTRACT\_Count3) & 1512 & 1260 & 1278 & 1171 & \textbf{1965} & 1713 & 1716 \\
+  &   & Stress (YEASTRACT\_Type2) & 2793 & 2760 & 2807 & 2046 & \textbf{2952} & 2576 & 2576 \\
+\midrule
+\multirow{11}{*}{``Chain (reversed)''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-chain-reversed.eps}} & niu (Cusanovich) & 10 & \textbf{23} & 17 & 21 & 16 & \textbf{23} & \textbf{23} \\
+  &   & Geuvadis (Cusanovich) & \textbf{28} & 18 & 16 & 17 & 20 & 22 & 23 \\
+  &   & NatVar (MacIsaac2) & 4 & 10 & \textbf{35} & 17 & 13 & 29 & 29 \\
+  &   & NatVar (YEASTRACT\_Count3) & 6 & 2 & 5 & 7 & 8 & \textbf{14} & \textbf{14} \\
+  &   & NatVar (YEASTRACT\_Type2) & 5 & 9 & 9 & 11 & 10 & \textbf{12} & \textbf{12} \\
+  &   & KO (MacIsaac2) & 20 & 30 & \textbf{45} & 22 & 17 & 19 & 21 \\
+  &   & KO (YEASTRACT\_Count3) & 7 & 4 & \textbf{10} & 1 & 5 & 5 & 5 \\
+  &   & KO (YEASTRACT\_Type2) & 9 & 9 & \textbf{18} & 8 & 6 & 11 & 11 \\
+  &   & Stress (MacIsaac2) & 17 & 23 & \textbf{57} & 12 & 23 & 19 & 19 \\
+  &   & Stress (YEASTRACT\_Count3) & 1 & 10 & 11 & 4 & 8 & \textbf{12} & \textbf{12} \\
+  &   & Stress (YEASTRACT\_Type2) & 10 & 10 & \textbf{17} & 12 & 12 & 14 & 15 \\
+\midrule
+\multirow{11}{*}{``Collider''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-collider.eps}} & niu (Cusanovich) & 0 & 0 & 0 & \textbf{2} & 0 & 0 & 0 \\
+  &   & Geuvadis (Cusanovich) & 0 & 0 & \textbf{1} & 0 & 0 & 0 & 0 \\
+  &   & NatVar (MacIsaac2) & 10 & 8 & 17 & 32 & 6 & \textbf{41} & \textbf{41} \\
+  &   & NatVar (YEASTRACT\_Count3) & 4 & 14 & 27 & 21 & 11 & \textbf{28} & \textbf{28} \\
+  &   & NatVar (YEASTRACT\_Type2) & 10 & 20 & \textbf{46} & 22 & 13 & 31 & 31 \\
+  &   & KO (MacIsaac2) & \textbf{44} & 23 & 10 & 34 & 15 & 32 & 31 \\
+  &   & KO (YEASTRACT\_Count3) & 22 & 12 & 5 & \textbf{24} & 1 & 20 & 20 \\
+  &   & KO (YEASTRACT\_Type2) & 28 & 12 & 17 & 9 & 7 & \textbf{34} & \textbf{34} \\
+  &   & Stress (MacIsaac2) & 12 & 13 & 14 & \textbf{39} & 11 & 28 & 29 \\
+  &   & Stress (YEASTRACT\_Count3) & 0 & 19 & 22 & \textbf{27} & 2 & 22 & 22 \\
+  &   & Stress (YEASTRACT\_Type2) & 2 & 8 & \textbf{25} & 15 & 2 & 22 & 20 \\
+\midrule
+\multirow{11}{*}{``Undirected''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-indirect.eps}} & niu (Cusanovich) & \textbf{495} & 250 & 212 & 442 & 354 & 452 & 451 \\
+  &   & Geuvadis (Cusanovich) & 532 & 322 & 446 & \textbf{583} & 387 & 409 & 408 \\
+  &   & NatVar (MacIsaac2) & \textbf{2368} & 2339 & 2211 & 2117 & 1849 & 1703 & 1698 \\
+  &   & NatVar (YEASTRACT\_Count3) & \textbf{2693} & 2561 & 2303 & 2490 & 2276 & 1878 & 1875 \\
+  &   & NatVar (YEASTRACT\_Type2) & 2075 & 1957 & \textbf{2678} & 1825 & 1166 & 1229 & 1223 \\
+  &   & KO (MacIsaac2) & \textbf{2171} & 2046 & 1576 & 2026 & 1954 & 2054 & 2048 \\
+  &   & KO (YEASTRACT\_Count3) & 2413 & \textbf{2680} & 1851 & 2517 & 2063 & 2234 & 2225 \\
+  &   & KO (YEASTRACT\_Type2) & \textbf{2178} & 1483 & 1354 & 2094 & 1972 & 1726 & 1725 \\
+  &   & Stress (MacIsaac2) & 1917 & 2060 & 1633 & \textbf{2170} & 1711 & 1919 & 1916 \\
+  &   & Stress (YEASTRACT\_Count3) & 2293 & 2393 & 2469 & \textbf{2593} & 1836 & 1988 & 1985 \\
+  &   & Stress (YEASTRACT\_Type2) & 1337 & 1345 & 1342 & \textbf{2076} & 1262 & 1453 & 1457 \\
+\midrule
+\multirow{11}{*}{``Spurious correlation''} & \multirow{11}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-spurious.eps}} & niu (Cusanovich) & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} \\
+  &   & Geuvadis (Cusanovich) & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} \\
+  &   & NatVar (MacIsaac2) & 15 & \textbf{67} & 13 & 27 & 16 & 15 & 15 \\
+  &   & NatVar (YEASTRACT\_Count3) & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} \\
+  &   & NatVar (YEASTRACT\_Type2) & 15 & 8 & 13 & 18 & 5 & \textbf{22} & \textbf{22} \\
+  &   & KO (MacIsaac2) & 21 & 42 & \textbf{217} & 86 & 22 & 48 & 48 \\
+  &   & KO (YEASTRACT\_Count3) & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} \\
+  &   & KO (YEASTRACT\_Type2) & 40 & 13 & 11 & 24 & \textbf{72} & 48 & 48 \\
+  &   & Stress (MacIsaac2) & 29 & \textbf{169} & 158 & 62 & 28 & 43 & 45 \\
+  &   & Stress (YEASTRACT\_Count3) & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{0} \\
+  &   & Stress (YEASTRACT\_Type2) & 10 & 13 & 15 & 25 & 7 & \textbf{42} & \textbf{42} \\
+\midrule
+\botrule
+\end{tabular}\end{adjustbox}{}
+\end{table*}

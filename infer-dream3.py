@@ -7,9 +7,10 @@ import io
 import time
 import zipfile
 
-import portia as pt
+import numpy as np
 import synapseclient
 
+import portia as pt
 from evalportia.data import get_synapse_credentials
 from evalportia.tools import *
 
@@ -39,6 +40,7 @@ def main():
     if not os.path.isdir(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
 
+    running_times = []
     for net_id in ['Ecoli1', 'Ecoli2', 'Yeast1', 'Yeast2', 'Yeast3']:
 
         content = zip_obj.read(f'InSilicoSize100/InSilicoSize100-{net_id}-heterozygous.tsv')
@@ -113,7 +115,8 @@ def main():
         np.fill_diagonal(M_bar, 0)
         assert not np.any(M_bar < 0)
 
-        print('Running time: %f seconds' % (time.time() - t0))
+        running_times.append(time.time() - t0)
+        print('Running time: %f seconds' % running_times[-1])
 
         # Rank and store results
         folder = os.path.join(OUTPUT_FOLDER, 'dream3', args.method)
@@ -127,8 +130,9 @@ def main():
         with open(filepath, 'w') as f:
             for gene_a, gene_b, score in pt.rank_scores(M_bar, gene_names):
                 f.write(f'{gene_a}\t{gene_b}\t{score}\n')
-
     zip_obj.close()
+
+    print('Average running time: %f seconds' % np.mean(running_times))
 
 
 if __name__ == '__main__':

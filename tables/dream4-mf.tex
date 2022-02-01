@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\processtable{\textcolor{red}{ROC-AUC scores of different GRN inference methods, evaluated on the 5 networks proposed in the DREAM4 In Silico Network challenge, size 100 multifactorial networks.}\label{tab:dream4-multi-benchmark}}{\color{red}\begin{tabular}{lccccccccccr} \\ \toprule
+Method & \multicolumn{2}{c}{Net1} & \multicolumn{2}{c}{Net2} & \multicolumn{2}{c}{Net3} & \multicolumn{2}{c}{Net4} & \multicolumn{2}{c}{Net5} & Overall score \\
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}  
+ & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC &  \\ \midrule
+ARACNe-AP & 0.119 & 0.602 & 0.086 & 0.568 & 0.163 & 0.655 & 0.131 & 0.645 & 0.124 & 0.627 & 17.520 \\
+GENIE3 & 0.156 & 0.750 & 0.153 & 0.726 & 0.229 & 0.764 & 0.217 & 0.788 & 0.191 & 0.795 & 37.008 \\
+PLSNET & 0.110 & 0.716 & \textbf{0.265} & \textbf{0.828} & 0.227 & 0.796 & 0.208 & 0.819 & 0.186 & 0.780 & 44.155 \\
+TIGRESS & 0.159 & \textbf{0.751} & 0.156 & 0.698 & 0.228 & 0.765 & 0.214 & 0.779 & 0.224 & 0.755 & 36.426 \\
+ENNET & \textbf{0.179} & 0.725 & 0.262 & 0.802 & \textbf{0.287} & \textbf{0.811} & \textbf{0.296} & \textbf{0.821} & \textbf{0.282} & \textbf{0.831} & \textbf{52.543} \\
+\midrule
+\fastmethodname & 0.137 & 0.693 & 0.139 & 0.706 & 0.230 & 0.773 & 0.229 & 0.778 & 0.144 & 0.725 & 32.819 \\
+\methodname & 0.138 & 0.706 & 0.151 & 0.704 & 0.237 & 0.774 & 0.230 & 0.778 & 0.155 & 0.729 & 34.050 \\
+NOTEARS & 0.022 & 0.538 & 0.042 & 0.583 & 0.022 & 0.523 & 0.027 & 0.554 & 0.028 & 0.566 & 2.408 \\
+\botrule
+\end{tabular}}{}
+\end{table*}

@@ -1,0 +1,36 @@
+\begin{table*}[t]
+\caption{\textcolor{red}{Proportions of false positives made on \dreamfive, categorised according to the local causal structure in which they occured, for all methods.}\label{tab:fp-categories-dream5}}\begin{adjustbox}{max width=\textwidth}\color{red}\begin{tabular}{cccrrrrrrr} \\ \toprule
+Structure & Illustration & Network & ARACNe-AP & GENIE3 & PLSNET & TIGRESS & ENNET & PORTIA & etePORTIA \\
+          
+ &  &  &  &  &  &  &  &  &  \\ \midrule
+\multirow{3}{*}{``True positive''} & \multirow{3}{*}{-} & Net1 & 924 & 49 & 1204 & 1356 & \textbf{1613} & 1401 & 1427 \\
+  &   & Net3 & 66 & 3 & 119 & 128 & 71 & 224 & \textbf{225} \\
+  &   & Net4 & 15 & 10 & 24 & 28 & 20 & \textbf{91} & 89 \\
+\midrule
+\multirow{3}{*}{``Chain''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-chain.eps}} & Net1 & 238 & 289 & \textbf{900} & 191 & 449 & 268 & 269 \\
+  &   & Net3 & 9 & 3 & 15 & 10 & 8 & \textbf{18} & \textbf{18} \\
+  &   & Net4 & 22 & 13 & 14 & 28 & 20 & \textbf{39} & 38 \\
+\midrule
+\multirow{3}{*}{``Fork''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-fork.eps}} & Net1 & \textbf{2168} & 1068 & 1283 & 1494 & 1105 & 1098 & 1118 \\
+  &   & Net3 & 63 & 41 & \textbf{256} & 159 & 90 & 184 & 184 \\
+  &   & Net4 & 349 & 246 & 199 & 388 & 278 & 552 & \textbf{553} \\
+\midrule
+\multirow{3}{*}{``Chain (reversed)''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-chain-reversed.eps}} & Net1 & \textbf{91} & 23 & 57 & 63 & 46 & 41 & 45 \\
+  &   & Net3 & 3 & 0 & 8 & 2 & 3 & \textbf{9} & \textbf{9} \\
+  &   & Net4 & 7 & 2 & 2 & 4 & 2 & \textbf{12} & 11 \\
+\midrule
+\multirow{3}{*}{``Collider''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-collider.eps}} & Net1 & 41 & \textbf{106} & 27 & 30 & 43 & 89 & 88 \\
+  &   & Net3 & 0 & \textbf{2} & 1 & 1 & \textbf{2} & \textbf{2} & \textbf{2} \\
+  &   & Net4 & 6 & 6 & 2 & 9 & 3 & \textbf{15} & \textbf{15} \\
+\midrule
+\multirow{3}{*}{``Undirected''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-indirect.eps}} & Net1 & 415 & \textbf{2110} & 398 & 605 & 614 & 870 & 832 \\
+  &   & Net3 & 29 & 176 & \textbf{243} & 160 & 117 & 98 & 99 \\
+  &   & Net4 & 342 & \textbf{520} & 207 & 371 & 312 & 392 & 396 \\
+\midrule
+\multirow{3}{*}{``Spurious correlation''} & \multirow{3}{*}{\includegraphics[width=0.1\textwidth]{figures/graph-n-spurious.eps}} & Net1 & 135 & \textbf{367} & 143 & 273 & 142 & 245 & 233 \\
+  &   & Net3 & \textbf{1896} & 1841 & 1424 & 1606 & 1775 & 1531 & 1529 \\
+  &   & Net4 & 3199 & 3143 & \textbf{3492} & 3112 & 3305 & 2839 & 2838 \\
+\midrule
+\botrule
+\end{tabular}\end{adjustbox}{}
+\end{table*}

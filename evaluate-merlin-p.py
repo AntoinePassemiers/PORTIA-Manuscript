@@ -4,9 +4,11 @@
 
 import matplotlib.pyplot as plt
 
-from evalportia.gt import graph_theoretic_evaluation
+from portia.gt.evaluation import graph_theoretic_evaluation, plot_fp_types
+from portia.gt.symmetry import matrix_symmetry
+from portia.gt.grn import GRN
 from evalportia.metrics import *
-from evalportia.plot import plot_fp_types, plot_matrix_symmetry
+from evalportia.plot import plot_matrix_symmetry
 from evalportia.tools import *
 from evalportia.utils.latex import *
 

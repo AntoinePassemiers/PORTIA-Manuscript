@@ -52,7 +52,8 @@ def main():
         }
     }
 
-    for net_id in ['1', '3', '4']:  # TODO
+    running_times = []
+    for net_id in ['1', '3', '4']:
 
         synapse_id_expression = synapse_ids[net_id]['expression']
         synapse_id_tfs = synapse_ids[net_id]['tfs']
@@ -114,7 +115,8 @@ def main():
         else:
             raise NotImplementedError()
 
-        print('Running time: %f seconds' % (time.time() - t0))
+        running_times.append(time.time() - t0)
+        print('Running time: %f seconds' % running_times[-1])
 
         # Rank and store results
         folder = os.path.join(OUTPUT_FOLDER, 'dream5', args.method)
@@ -127,6 +129,8 @@ def main():
         with open(filepath, 'w') as f:
             for gene_a, gene_b, score in pt.rank_scores(M_bar, gene_names, limit=100000):
                 f.write(f'{gene_a}\t{gene_b}\t{score}\n')
+
+    print(f'Running times: {running_times}')
 
 
 if __name__ == '__main__':

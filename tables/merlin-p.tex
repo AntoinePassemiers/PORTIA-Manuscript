@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\processtable{\textcolor{red}{ROC-AUC scores of different GRN inference methods on 3 yeast expression datasets and a LCL dataset from MERLIN-P, evaluated on 3 and 2 goldstandard networks, respectively.}\label{tab:merlin-p-benchmark}}{\color{red}\begin{tabular}{lccccccccccr} \\ \toprule
+Method & \multicolumn{2}{c}{LCL (Niu)} & \multicolumn{2}{c}{LCL (Geuvadis)} & \multicolumn{2}{c}{NatVar (Average)} & \multicolumn{2}{c}{KO (Average)} & \multicolumn{2}{c}{Stress (Average)} & Overall score \\
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}  
+ & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC &  \\ \midrule
+ARACNe-AP & 0.132 & 0.501 & 0.123 & 0.500 & 0.036 & 0.548 & 0.019 & \textbf{0.563} & 0.022 & \textbf{0.584} & 4.467 \\
+GENIE3 & 0.097 & 0.489 & 0.114 & 0.498 & 0.016 & 0.467 & 0.015 & 0.517 & 0.015 & 0.518 & 3.723 \\
+PLSNET & 0.111 & 0.493 & 0.078 & 0.475 & 0.033 & 0.505 & 0.012 & 0.502 & 0.020 & 0.533 & 3.852 \\
+TIGRESS & 0.135 & 0.507 & \textbf{0.148} & \textbf{0.526} & 0.020 & 0.498 & 0.020 & 0.520 & 0.015 & 0.497 & 3.782 \\
+ENNET & 0.115 & 0.486 & 0.118 & 0.493 & 0.037 & 0.569 & 0.024 & 0.521 & 0.028 & 0.536 & 4.175 \\
+\midrule
+\fastmethodname & 0.139 & 0.509 & 0.137 & 0.514 & 0.110 & 0.657 & \textbf{0.029} & 0.552 & 0.031 & 0.559 & 5.059 \\
+\methodname & \textbf{0.139} & \textbf{0.509} & 0.136 & 0.514 & \textbf{0.111} & \textbf{0.660} & 0.028 & 0.552 & \textbf{0.031} & 0.559 & \textbf{5.074} \\
+\botrule
+\end{tabular}}{}
+\end{table*}

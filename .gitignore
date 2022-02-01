@@ -1,13 +1,5 @@
 *.pyc
 
-GENIE3.py
-
-inferred-networks/
-figures/
-tables/
-
-data/
-
 tmp/
 .idea/
 venv/

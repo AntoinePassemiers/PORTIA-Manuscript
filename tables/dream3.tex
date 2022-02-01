@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\processtable{\textcolor{red}{AUROC, AUPR and overall scores of different GRN inference methods, evaluated on the 5 networks from DREAM3.}\label{tab:dream3-benchmark}}{\color{red}\begin{tabular}{lccccccccccrr} \\ \toprule
+Method & \multicolumn{2}{c}{Net1} & \multicolumn{2}{c}{Net2} & \multicolumn{2}{c}{Net3} & \multicolumn{2}{c}{Net4} & \multicolumn{2}{c}{Net5} & Overall score (no KO) & Overall score \\
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}   
+ & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC &  &  \\ \midrule
+ARACNe-AP & 0.021 & 0.563 & 0.030 & 0.555 & 0.039 & 0.581 & 0.056 & 0.530 & 0.065 & 0.513 & 2.475 & 2.975 \\
+GENIE3 & 0.019 & 0.602 & 0.014 & 0.552 & 0.021 & 0.532 & 0.037 & 0.491 & 0.060 & 0.514 & 0.574 & 1.289 \\
+PLSNET & 0.018 & 0.541 & 0.029 & 0.526 & 0.044 & 0.674 & 0.065 & 0.576 & 0.071 & 0.517 & 2.742 & 4.835 \\
+TIGRESS & 0.050 & 0.760 & 0.051 & 0.692 & 0.045 & 0.628 & 0.066 & 0.562 & 0.071 & 0.526 & \textbf{8.128} & 8.151 \\
+ENNET & 0.382 & 0.887 & 0.593 & 0.926 & 0.347 & 0.866 & 0.273 & 0.770 & 0.236 & 0.684 & 5.372 & 78.413 \\
+\midrule
+Z-scores & 0.692 & 0.913 & \textbf{0.854} & 0.963 & \textbf{0.576} & 0.887 & \textbf{0.508} & 0.847 & \textbf{0.445} & 0.788 & 0.000 & 142.938 \\
+\fastmethodname & 0.726 & 0.956 & 0.826 & 0.986 & 0.512 & 0.888 & 0.507 & \textbf{0.873} & 0.385 & 0.798 & 3.492 & 144.029 \\
+\methodname & \textbf{0.728} & \textbf{0.956} & 0.832 & \textbf{0.986} & 0.516 & \textbf{0.888} & 0.506 & 0.872 & 0.386 & \textbf{0.798} & 3.598 & \textbf{144.373} \\
+\botrule
+\end{tabular}}{}
+\end{table*}

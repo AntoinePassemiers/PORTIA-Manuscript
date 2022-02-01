@@ -123,7 +123,7 @@ To infer GRNs from the DREAM3 datasets with PORTIA for example, please use the f
 ```bash
 python3 infer-dream3.py portia
 ```
-To remove knock-out data from the datasets, you can add the `-noko` optional argument (valid for `dream3` and `dream4` only).
+To remove knock-out data from the datasets, you can add the `-noko` optional argument (valid for `dream3`, `dream4` and `dream5` only).
 
 #### Evaluate GRNs
 
@@ -135,14 +135,3 @@ python3 evaluate-merlin-p.py
 This will automatically save figures and tables.
 
 ---
-
-```bash
-SYNAPSE_USERNAME=antoine.passemiers@kuleuven.be
-ARACNE_AP_LOCATION=~/ARACNe-AP/dist/aracne.jar
-PLSNET_LOCATION=~/PLSNET
-NIMEFI_LOCATION=~/NIMEFI
-export SYNAPSE_USERNAME
-export ARACNE_AP_LOCATION
-export PLSNET_LOCATION
-export NIMEFI_LOCATION
-```

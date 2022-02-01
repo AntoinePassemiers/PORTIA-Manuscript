@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\processtable{\textcolor{red}{ROC-AUC scores of different GRN inference methods, evaluated on the 4 networks proposed in the \dreamfive GRN sub-challenge.}\label{tab:dream5-benchmark}}{\color{red}\begin{tabular}{lccccccrr} \\ \toprule
+Method & \multicolumn{2}{c}{Net1} & \multicolumn{2}{c}{Net3} & \multicolumn{2}{c}{Net4} & Overall score (no KO) & Overall score \\
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}   
+ & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC &  &  \\ \midrule
+ARACNe-AP & 0.174 & 0.682 & 0.056 & 0.566 & 0.020 & 0.516 & 0.418 & 1.723 \\
+GENIE3 & 0.288 & 0.812 & 0.096 & \textbf{0.620} & 0.021 & 0.518 & 0.000 & 39.304 \\
+PLSNET & 0.238 & \textbf{0.853} & 0.043 & 0.569 & 0.020 & 0.514 & 34.251 & 37.972 \\
+TIGRESS & 0.307 & 0.781 & 0.067 & 0.592 & 0.020 & 0.514 & 33.914 & 31.803 \\
+ENNET & \textbf{0.438} & 0.848 & 0.054 & 0.608 & 0.019 & 0.512 & \textbf{65.948} & \textbf{inf} \\
+\midrule
+\fastmethodname & 0.383 & 0.822 & \textbf{0.110} & \textbf{0.620} & \textbf{0.028} & \textbf{0.537} & 41.691 & 75.425 \\
+\methodname & 0.385 & 0.822 & \textbf{0.110} & \textbf{0.620} & \textbf{0.028} & 0.536 & 43.143 & 76.374 \\
+\botrule
+\end{tabular}}{}
+\end{table*}

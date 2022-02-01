@@ -10,10 +10,12 @@ import matplotlib.pyplot as plt
 import scipy.io
 import synapseclient
 
+from portia.gt.evaluation import graph_theoretic_evaluation, plot_fp_types
+from portia.gt.symmetry import matrix_symmetry
+from portia.gt.grn import GRN
 from evalportia.data import get_synapse_credentials
-from evalportia.gt import graph_theoretic_evaluation
 from evalportia.metrics import *
-from evalportia.plot import plot_fp_types, plot_matrix_symmetry
+from evalportia.plot import plot_matrix_symmetry
 from evalportia.utils.latex import *
 
 

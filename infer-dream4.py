@@ -7,6 +7,7 @@ import zipfile
 import time
 import io
 
+import numpy as np
 import synapseclient
 
 import portia as pt
@@ -39,6 +40,7 @@ def main():
     if not os.path.isdir(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
 
+    running_times = []
     for net_id in ['1', '2', '3', '4', '5']:
 
         content = zip_obj.read(f'insilico_size100_{net_id}/insilico_size100_{net_id}_knockdowns.tsv')
@@ -111,7 +113,8 @@ def main():
         else:
             raise NotImplementedError()
 
-        print('Running time: %f seconds' % (time.time() - t0))
+        running_times.append(time.time() - t0)
+        print('Running time: %f seconds' % running_times[-1])
 
         # Rank and store results
         folder = os.path.join(OUTPUT_FOLDER, 'dream4', args.method)
@@ -124,6 +127,8 @@ def main():
         with open(filepath, 'w') as f:
             for gene_a, gene_b, score in pt.rank_scores(M_bar, gene_names):
                 f.write(f'{gene_a}\t{gene_b}\t{score}\n')
+
+    print('Average running time: %f seconds' % np.mean(running_times))
 
 
 if __name__ == '__main__':
