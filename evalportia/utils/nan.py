@@ -9,7 +9,9 @@ def nan_to_min(x):
     x = np.copy(x)
     mask = np.isnan(x)
     if np.sum(~mask) == 0:
+        # All predictions are missing: NaNs are replaced with 0
         x[mask] = 0
     else:
-        x[mask] = np.min(x[~mask])
+        # Randomly shuffle missing gene pairs / gene pairs with lowest score
+        x[mask] = np.min(x[~mask]) - 1e-3 * np.random.rand(*x[mask].shape)
     return x

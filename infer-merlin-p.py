@@ -7,7 +7,7 @@ import time
 
 import portia as pt
 
-from evalportia.grn import GRN
+from portia.gt.grn import GRN
 from evalportia.tools import *
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -20,15 +20,15 @@ METHODS = ['portia', 'eteportia', 'zscores', 'genie3', 'ennet', 'tigress', 'nime
 
 DATASETS = [
     {
-        'name': 'niu',
-        'expr-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'Niu.txt'),
+        'name': 'Geuvadis',
+        'expr-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'Geuvadis.txt'),
         'gs': 'Cusanovich',
         'gs-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'gold', 'Cusanovich_gold.txt'),
         'tf-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'TF_names.txt')
     },
     {
-        'name': 'Geuvadis',
-        'expr-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'Geuvadis.txt'),
+        'name': 'niu',
+        'expr-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'Niu.txt'),
         'gs': 'Cusanovich',
         'gs-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'gold', 'Cusanovich_gold.txt'),
         'tf-location': os.path.join(DATA_FOLDER, 'LCL_networks', 'expression', 'TF_names.txt')
@@ -148,20 +148,15 @@ def main():
 
         # Load TF names
         filepath = dataset_info['tf-location']
-        _tf_names = set(load_tf_names(filepath)).intersection(gene_names)
-        for tf_name in _tf_names:
+        tf_names = set(load_tf_names(filepath)).intersection(gene_names)
+        for tf_name in tf_names:
             assert tf_name in gene_names
-        tf_names = []
-        _gene_names = set(gene_names)
-        for tf_name in _tf_names:
-            if tf_name in _gene_names:
-                tf_names.append(tf_name)
 
         n_samples = X.shape[0]
         n_genes = X.shape[1]
         print(f'Number of observations: {n_samples}')
         print(f'Number of genes: {n_genes}')
-        tf_idx = np.where([gene_name in _tf_names for gene_name in gene_names])[0]
+        tf_idx = np.where([gene_name in tf_names for gene_name in gene_names])[0]
         assert len(tf_names) == len(tf_idx)
         print(f'Number of regulators: {len(tf_idx)}')
 

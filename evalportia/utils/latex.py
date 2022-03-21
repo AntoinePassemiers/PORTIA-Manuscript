@@ -11,7 +11,7 @@ from portia.gt import CausalStructure
 
 class MultiColumn:
 
-    def __init__(self, name, colnames=None, alignment='c', dtype=str):
+    def __init__(self, name, colnames=None, alignment='c', dtype=str, bold=True):
         if colnames is None:
             colnames = []
         self.name = name
@@ -24,6 +24,7 @@ class MultiColumn:
         self.alignment = alignment
         self.dtype = dtype
         self.max_values = [-np.inf for _ in range(self.n_columns)]
+        self.bold = bold
         self.start = 1
 
     def set_start(self, start):
@@ -60,7 +61,7 @@ class MultiColumn:
     def format_value(self, value, row_id):
         if self.dtype == float:
             max_value = self.max_values[row_id]
-            if value + 1e-15 >= max_value:
+            if (value + 1e-15 >= max_value) and (self.bold):
                 value = f'\\textbf{{{value:.3f}}}'
             else:
                 value = f'{value:.3f}'
@@ -119,14 +120,14 @@ class LaTeXTable:
             s += '\\begin{table*}[t]\n'
         else:
             s += '\\begin{table}[t]\n'
-        caption = f'\\textcolor{{red}}{{{self.caption}}}'
+        caption = f'{self.caption}'
         if self.bioinformatics:
             s += f'\\processtable{{{caption}\\label{{{self.label}}}}}{{'
         else:
             s += f'\\caption{{{caption}\\label{{{self.label}}}}}'
         if self.text_width:
             s += '\\begin{adjustbox}{max width=\\textwidth}'
-        s += '\\color{red}\\begin{tabular}'
+        s += '\\begin{tabular}'
         s += '{'
         for multi_column in self.multi_columns:
             s += multi_column.alignment * multi_column.n_columns
@@ -156,7 +157,7 @@ class LaTeXTable:
                 s += ' & '.join([column.get_data(row_id) for column in self.multi_columns])
                 s += ' \\\\\n'
                 row_id += 1
-        s += '\\botrule\n'
+        s += '\\bottomrule\n'
         s += '\\end{tabular}'
         if self.bioinformatics:
             s += '}'

@@ -2,6 +2,8 @@
 # evaluate-merlin-p.py
 # author: Antoine Passemiers
 
+import pickle
+
 import matplotlib.pyplot as plt
 
 from portia.gt.evaluation import graph_theoretic_evaluation, plot_fp_types
@@ -28,6 +30,8 @@ if not os.path.isdir(FIGURES_PATH):
 PDF_DATA_PATH = os.path.join(ROOT, 'pdf-data', 'merlin-p')
 if not os.path.isdir(PDF_DATA_PATH):
     os.makedirs(PDF_DATA_PATH)
+
+GT_EVALUATION = True
 
 
 DATASETS = [
@@ -122,6 +126,8 @@ def load_tf_names(filepath):
 def main():
 
     method_names = os.listdir(NETWORKS_PATH)
+    results = {method_name: [] for method_name in method_names}
+    results['baseline']: []
     evaluations = {method_name: {'gt': [], 'scores': [], 'aurocs': [], 'auprcs': [], 'symmetry': [], 'target-symmetry': []} for method_name in method_names}
 
     for dataset_info in DATASETS:
@@ -154,6 +160,7 @@ def main():
         gene_names = gene_names[mask]
         df = df[gene_names]
 
+        print(f'Proportion of positives: {float(np.nanmean(A))}')
         print(f'Number of experimentally verified interactions: {int(np.nansum(A))}')
 
         # Load TF names
@@ -189,25 +196,30 @@ def main():
             filepath = os.path.join(NETWORKS_PATH, method_name, f'{net_id}-{goldstandard}.txt')
             G_pred = GRN.load_network(filepath, gene_names, tf_idx)
             metrics = compute_metrics(G_target, G_pred, pdf_data)
+            results[method_name].append(metrics)
             evaluations[method_name]['scores'].append(metrics['score'])
             evaluations[method_name]['aurocs'].append(metrics['auroc'])
             evaluations[method_name]['auprcs'].append(metrics['auprc'])
             # print(method_name, evaluations[method_name])
 
-            tf_mask = np.zeros(n_genes, dtype=bool)
-            tf_mask[tf_idx] = 1
-            tmp_filepath = os.path.join(EVAL_TMP_PATH, f'{net_id}-{goldstandard}.npz')
-            res = graph_theoretic_evaluation(tmp_filepath, G_target, G_pred, tf_mask)
-            res['G-target'] = G_target
-            res['G-pred'] = G_pred
-            res['net-id'] = net_id
-            res['goldstandard'] = goldstandard
-            evaluations[method_name]['gt'].append(res)
-            evaluations[method_name]['symmetry'].append(matrix_symmetry(G_pred))
-            evaluations[method_name]['target-symmetry'].append(matrix_symmetry(G_target))
+            if GT_EVALUATION:
+                tf_mask = np.zeros(n_genes, dtype=bool)
+                tf_mask[tf_idx] = 1
+                tmp_filepath = os.path.join(EVAL_TMP_PATH, f'{net_id}-{goldstandard}.npz')
+                res = graph_theoretic_evaluation(tmp_filepath, G_target, G_pred, tf_mask)
+                res['G-target'] = G_target
+                res['G-pred'] = G_pred
+                res['net-id'] = net_id
+                res['goldstandard'] = goldstandard
+                evaluations[method_name]['gt'].append(res)
+                evaluations[method_name]['symmetry'].append(matrix_symmetry(G_pred))
+                evaluations[method_name]['target-symmetry'].append(matrix_symmetry(G_target))
 
     for method_name in evaluations.keys():
         evaluations[method_name]['overall-score'] = np.mean(evaluations[method_name]['scores'])
+
+    with open('tmp.pickle', 'wb') as f:
+        pickle.dump(results, f)
 
     def compute_table_row(method_name, key):
         values = [method_name]
@@ -226,7 +238,7 @@ def main():
 
     # Generate performance table
     print('Generating LaTeX table...')
-    caption = 'ROC-AUC scores of different GRN inference methods on 3 yeast expression datasets and a LCL dataset from MERLIN-P, evaluated on 3 and 2 goldstandard networks, respectively.'
+    caption = 'AUROC, AUPR and overall scores of different GRN inference methods on 3 yeast expression datasets and a LCL dataset from MERLIN-P, evaluated on 3 and 2 goldstandard networks, respectively.'
     table = LaTeXTable(caption, 'tab:merlin-p-benchmark')
     table.add_column(MultiColumn('Method', dtype=str, alignment='l'))
     table.add_column(MultiColumn(f'LCL (Niu)', ['AUPR', 'AUROC'], dtype=float))
@@ -247,54 +259,56 @@ def main():
         f.write(str(table))
     print(table)
 
-    caption = 'Proportions of false positives made on the MERLIN-P datasets, categorised according to the local causal structure in which they occured, for all methods.'
-    method_keys = ['aracneap', 'genie3', 'plsnet', 'tigress', 'ennet', 'portia', 'eteportia']
-    _method_names = ['ARACNe-AP', 'GENIE3', 'PLSNET', 'TIGRESS', 'ENNET', 'PORTIA', 'etePORTIA']
-    net_names = []
-    for dataset_info in DATASETS:
-        s = dataset_info["gs"].replace("_", "\\_")
-        net_names.append(f'{dataset_info["name"]} ({s})')
-    label = 'tab:fp-categories-merlinp'
-    table = create_fp_table(evaluations, _method_names, method_keys, net_names, label, caption)
-    with open(os.path.join(TABLES_PATH, 'merlinp-fp-categories.tex'), 'w') as f:
-        f.write(str(table))
+    if GT_EVALUATION:
 
-    for method_name in method_names:
-        ndcgs = []
-        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [0, 1]]))
-        print(f'LCL - NDCG of {method_name}: {ndcgs}')
-        ndcgs = []
-        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [2, 5, 8]]))
-        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [3, 6, 9]]))
-        ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [4, 7, 10]]))
-        print(f'Yeast - NDCG of {method_name}: {ndcgs}')
+        caption = 'Proportions of false positives made on the MERLIN-P datasets, categorised according to the local causal structure in which they occured, for all methods.'
+        method_keys = ['aracneap', 'genie3', 'plsnet', 'tigress', 'ennet', 'portia', 'eteportia']
+        _method_names = ['ARACNe-AP', 'GENIE3', 'PLSNET', 'TIGRESS', 'ENNET', 'PORTIA', 'etePORTIA']
+        net_names = []
+        for dataset_info in DATASETS:
+            s = dataset_info["gs"].replace("_", "\\_")
+            net_names.append(f'{dataset_info["name"]} ({s})')
+        label = 'tab:fp-categories-merlinp'
+        table = create_fp_table(evaluations, _method_names, method_keys, net_names, label, caption)
+        with open(os.path.join(TABLES_PATH, 'merlinp-fp-categories.tex'), 'w') as f:
+            f.write(str(table))
 
-    # Generate figures
-    print('Generating figures...')
+        for method_name in method_names:
+            ndcgs = []
+            ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [0, 1]]))
+            print(f'LCL - NDCG of {method_name}: {ndcgs}')
+            ndcgs = []
+            ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [2, 5, 8]]))
+            ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [3, 6, 9]]))
+            ndcgs.append(np.mean([evaluations[method_name]['gt'][i]['score'] for i in [4, 7, 10]]))
+            print(f'Yeast - NDCG of {method_name}: {ndcgs}')
 
-    values = []
-    for method_name in ['genie3', 'aracneap', 'tigress', 'plsnet', 'ennet', 'portia', 'eteportia']:
-        values.append(evaluations[method_name]['symmetry'])
-    values.append(evaluations['portia']['target-symmetry'])
-    _method_names = ['GENIE3', 'ARACNe-AP', 'TIGRESS', 'PLSNET', 'ENNET', 'PORTIA', 'etePORTIA', 'Goldstandard']
-    title = 'Symmetry of inferred GRNs (MERLIN-P)'
-    color_idx = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3]
-    net_names = ['LCL', None, 'NatVar', None, None, 'KO', None, None, 'StressResp', None, None]
-    plot_matrix_symmetry(values, _method_names, title=title, network_names=net_names, color_idx=color_idx)
-    filepath = os.path.join(ROOT, 'figures', f'symmetry-merlin-p.eps')
-    plt.savefig(filepath, dpi=300, transparent=True)
-    plt.close()
+        # Generate figures
+        print('Generating figures...')
 
-    for method_name in method_names:
-        for res in evaluations[method_name]['gt']:
-            net_id = res['net-id']
-            goldstandard = res['goldstandard']
-            ax = plt.subplot(1, 1, 1)
-            plot_fp_types(ax, res['G-target'], res['G-pred'], res['T'], n_pred=res['G-target'].n_edges)
-            # plt.title(f'Score: {res["score"]}')
-            filepath = os.path.join(FIGURES_PATH, f'{method_name}-{net_id}-{goldstandard}.png')
-            plt.savefig(filepath)
-            plt.close()
+        values = []
+        for method_name in ['genie3', 'aracneap', 'tigress', 'plsnet', 'ennet', 'portia', 'eteportia']:
+            values.append(evaluations[method_name]['symmetry'])
+        values.append(evaluations['portia']['target-symmetry'])
+        _method_names = ['GENIE3', 'ARACNe-AP', 'TIGRESS', 'PLSNET', 'ENNET', 'PORTIA', 'etePORTIA', 'Goldstandard']
+        title = 'Symmetry of inferred GRNs (MERLIN-P)'
+        color_idx = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3]
+        net_names = ['LCL', None, 'NatVar', None, None, 'KO', None, None, 'StressResp', None, None]
+        plot_matrix_symmetry(values, _method_names, title=title, network_names=net_names, color_idx=color_idx)
+        filepath = os.path.join(ROOT, 'figures', f'symmetry-merlin-p.eps')
+        plt.savefig(filepath, dpi=300, transparent=True)
+        plt.close()
+
+        for method_name in method_names:
+            for res in evaluations[method_name]['gt']:
+                net_id = res['net-id']
+                goldstandard = res['goldstandard']
+                ax = plt.subplot(1, 1, 1)
+                plot_fp_types(ax, res['G-target'], res['G-pred'], res['T'], n_pred=res['G-target'].n_edges)
+                # plt.title(f'Score: {res["score"]}')
+                filepath = os.path.join(FIGURES_PATH, f'{method_name}-{net_id}-{goldstandard}.png')
+                plt.savefig(filepath)
+                plt.close()
 
 
 if __name__ == '__main__':

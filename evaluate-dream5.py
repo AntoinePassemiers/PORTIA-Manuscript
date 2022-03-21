@@ -126,6 +126,7 @@ def main():
                 entity = synapse.get(synapse_id_goldstandard)
                 G_target = GRN.load_goldstandard(entity.path, gene_names)
                 A = G_target.asarray()
+                print(f'Proportion of positives: {float(np.nanmean(A))}')
                 G_pred = GRN.load_network(filepath, gene_names, tf_idx)
                 M_bar = G_pred.asarray()
                 tf_mask = np.zeros(n_genes, dtype=bool)

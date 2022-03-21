@@ -5,31 +5,38 @@
 import numpy as np
 import pandas as pd
 import scipy.special
-from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
+from sklearn.metrics import auc, precision_recall_curve, roc_auc_score, roc_curve
 from sklearn.neighbors import KernelDensity
-import dreamtools
 
 from portia.gt.symmetry import matrix_symmetry
 from evalportia.utils.nan import nan_to_min
+from evalportia.curves import get_statistics
 
 
 def compute_auroc(y_target, y_pred):
     if np.sum(y_target) == 0:
-        return 0.5
+        # return 0.5, [], []
+        raise NotImplementedError()
     else:
-        return roc_auc_score(y_target, y_pred)
+        fpr, tpr, _ = roc_curve(y_target, y_pred)
+        return roc_auc_score(y_target, y_pred, average='weighted'), (fpr, tpr)
 
 
 def compute_auprc(y_target, y_pred):
     if np.sum(y_target) == 0:
-        return 0
+        # return 0, [], []
+        raise NotImplementedError()
     else:
-        precision, recall, _ = precision_recall_curve(y_target, y_pred)
-        return auc(recall, precision)
+        eta = np.mean(y_target)
+        sample_weight = np.ones(len(y_target))
+        sample_weight[y_target == 1] = 0.5 / np.sum(y_target == 1)
+        sample_weight[y_target == 0] = 0.5 / np.sum(y_target == 0)
+        precision, recall, _ = precision_recall_curve(y_target, y_pred, sample_weight=sample_weight)
+        return auc(recall, precision), (precision, recall)
 
 
 def estimate_distribution(data, n_points=1000, relative_range=5):
-    bandwidth = 2 * np.std(data)
+    bandwidth = 0.5 * np.std(data)
     kde = KernelDensity(kernel='exponential', bandwidth=bandwidth)
     kde.fit(data.reshape(-1, 1))
     _min = np.min(data)
@@ -45,26 +52,44 @@ def estimate_distribution(data, n_points=1000, relative_range=5):
     return x, y
 
 
-def compute_area_distributions(G_target, n_networks=25000):
+def compute_area_distributions(G_target, n_networks=25000, n_top=30000):
     mask = G_target.get_mask()
     G_random = G_target.copy()
     areas = np.empty((2, n_networks))
+
     for i in range(n_networks):
-        G_random.shuffle()
+
+        """
+        in_degree = np.sum(G_target[:, :] == 1, axis=0)
+        in_degree = in_degree / np.maximum(1, np.sum(~np.isnan(G_target[:, :]), axis=0))
+        G_random = (np.random.rand(*G_target.shape) < in_degree).astype(int)
+        """
+
         y_target = G_target[mask]
         y_pred = G_random[mask]
-        y_pred = nan_to_min(y_pred)
-        areas[0, i] = roc_auc_score(y_target, y_pred)
-        precision, recall, _ = precision_recall_curve(y_target, y_pred)
-        areas[1, i] = auc(recall, precision)
+        np.random.shuffle(y_pred)
+
+        y_pred_noisy = y_pred + 0.01 * np.random.rand(*y_pred.shape)
+
+        # Get the indices of the first `n_edges` predictions,
+        # sorted by decreasing order of importance
+        idx = np.argsort(y_pred_noisy)[-n_top:]
+        y_target = y_target[idx]
+        y_pred_noisy = y_pred_noisy[idx]
+
+        auprc, auroc, _, _, _, _ = get_statistics(y_target[::-1], y_pred_noisy[::-1])
+        areas[0, i] = auroc
+        areas[1, i] = auprc
 
     pdf_data = {}
     x, y = estimate_distribution(areas[0, :])
     pdf_data['x_auroc'] = x
     pdf_data['y_auroc'] = y
+    pdf_data['aurocs'] = areas[0, :]
     x, y = estimate_distribution(areas[1, :])
     pdf_data['x_auprc'] = x
     pdf_data['y_auprc'] = y
+    pdf_data['auprcs'] = areas[1, :]
 
     return pdf_data
 
@@ -75,7 +100,11 @@ def compute_p_value(value, x, y):
     last_value = x[-1] + (x[-1] - x[-2])
     dx = np.diff(x, append=last_value)
     mask = (x >= value)
-    return np.sum(y[mask] * dx[mask])
+    p_value = np.sum(y[mask] * dx[mask])
+    total = np.sum(y * dx)
+    if total > 0:
+        p_value /= total
+    return p_value
 
 
 def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
@@ -87,7 +116,8 @@ def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
     y_target = G_target[mask]
     y_pred = G_pred[mask]
 
-    # Fill missing predictions with the lowest score.
+    # Fill missing predictions with the lowest score (+ some random noise
+    # in order to shuffle the missing gene pairs).
     # For fair comparison of the different GRN inference methods,
     # the same number of predictions should be reported.
     # If a method reports less regulatory links than what is present
@@ -104,8 +134,14 @@ def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
     assert not np.any(np.isnan(y_target))
     assert len(np.unique(y_target) == 2)
 
-    auroc = compute_auroc(y_target, y_pred)
-    auprc = compute_auprc(y_target, y_pred)
+    auprc, auroc, precision, recall, tpr, fpr = get_statistics(y_target[::-1], y_pred[::-1])
+    roc_curve = (tpr, fpr)
+    prc_curve = (precision, recall)
+
+    #auroc, roc_curve = compute_auroc(y_target, y_pred)
+    #auprc, prc_curve = compute_auprc(y_target, y_pred)
+    #p_value_auroc = np.mean(auroc < pdf_data['aurocs'])
+    #p_value_auprc = np.mean(auprc < pdf_data['auprcs'])
     p_value_auroc = compute_p_value(auroc, pdf_data['x_auroc'], pdf_data['y_auroc'])
     p_value_auprc = compute_p_value(auprc, pdf_data['x_auprc'], pdf_data['y_auprc'])
 
@@ -121,11 +157,18 @@ def compute_metrics(G_target, G_pred, pdf_data, n_top=30000):
         
     score = -0.5 * (log_p_value_auroc + log_p_value_auprc)
     return {
-        'auprc': auprc,
-        'auroc': auroc,
-        'score': score,
-        'symmetry': matrix_symmetry(G_pred),
-        'target-symmetry': matrix_symmetry(G_target)
+        'auprc': float(auprc),
+        'auroc': float(auroc),
+        'auprc-p-value': float(p_value_auprc),
+        'auroc-p-value': float(p_value_auroc),
+        'score': float(score),
+        'symmetry': float(matrix_symmetry(G_pred)),
+        'target-symmetry': float(matrix_symmetry(G_target)),
+
+        'prc-curve': list(prc_curve),
+        'roc-curve': list(roc_curve),
+        'y-pred': list(y_pred),
+        'y-target': list(y_target)
     }
 
 
@@ -134,6 +177,7 @@ def score_dream_prediction(gs_filepath, pred_filepath, pdf_data, use_test=False)
     https://github.com/dreamtools/dreamtools/blob/master/dreamtools/dream3/D3C4/scoring.py
     https://github.com/dreamtools/dreamtools/blob/master/dreamtools/dream4/D4C2/scoring.py
     """
+    import dreamtools
     d3d4roc = dreamtools.core.rocs.D3D4ROC()
 
     def _load_network(filename):
@@ -145,7 +189,7 @@ def score_dream_prediction(gs_filepath, pred_filepath, pdf_data, use_test=False)
     gold_data = _load_network(gs_filepath)
     test_data = _load_network(pred_filepath)
 
-    newtest = pd.merge(test_data, gold_data, how='inner', on=[0,1])
+    newtest = pd.merge(test_data, gold_data, how='inner', on=[0, 1])
     if use_test:
         test = list(newtest['2_x'])
     else:
